@@ -14,13 +14,9 @@ stages:
     - task: TerraformInstaller@0
       inputs:
         terraformVersion: 'latest'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'nonprod'
-        scriptLocation: 'inlineScript'
-        scriptType: bash
-        inlineScript: |
+    # TODO: This login should be replaced with a service connection - this requires an self-hosted agent pool
+    - script: |
+          az login --service-principal --username $(SPN_ID) --password $(SPN_PASS) --tenant $(TENANT_ID)
           terraform --version
           terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
           terraform plan -out=tfplan
@@ -36,12 +32,8 @@ stages:
       inputs:
         terraformVersion: 'latest'
 
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'nonprod'
-        scriptLocation: 'inlineScript'
-        scriptType: bash
-        inlineScript: |
+    - script: |
+          az login --service-principal --username $(SPN_ID) --password $(SPN_PASS) --tenant $(TENANT_ID)
           terraform --version
           terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
           terraform apply -auto-approve tfplan
