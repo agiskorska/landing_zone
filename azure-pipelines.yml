@@ -2,7 +2,7 @@ trigger:
 - main
 
 pool:
-  vmImage: 'ubuntu-latest'
+  name: banonprod
 
 stages:
 - stage: Plan
@@ -14,9 +14,13 @@ stages:
     - task: TerraformInstaller@0
       inputs:
         terraformVersion: 'latest'
-    # TODO: This login should be replaced with a service connection - this requires an self-hosted agent pool
-    - script: |
-          az login --service-principal --username $(SPN_ID) --password $(SPN_PASS) --tenant $(TENANT_ID)
+
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'NONPROD'
+        scriptLocation: 'inlineScript'
+        scriptType: bash
+        inlineScript: |
           terraform --version
           terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
           terraform plan -out=tfplan
@@ -32,8 +36,12 @@ stages:
       inputs:
         terraformVersion: 'latest'
 
-    - script: |
-          az login --service-principal --username $(SPN_ID) --password $(SPN_PASS) --tenant $(TENANT_ID)
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'NONPROD'
+        scriptLocation: 'inlineScript'
+        scriptType: bash
+        inlineScript: |
           terraform --version
           terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
           terraform apply -auto-approve tfplan
