@@ -1,20 +1,26 @@
-# Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+# Introduction
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+TODO: the steps that need to be done:
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+## Write terraform for the following
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+    * azure devcenter + project
+    * az ad service principle,
+    * add service connection to az devops, ( I'm not 100% sure this can be done other than in the UI - esp with custom settings. )
+    * managed devops pool
+    * bonus points: 
+        * create an image for the agent that will have az cli, docker and terraform 
+        * add subnets and vnets, private endpoint to ACR
+        * everything should be parametrized.
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Outcome should work like this:
+locally starting a script (or better, terraform code) to stand up the services named above. This stands up the infra, first jobs are ready to go in azure devops
+
+## What would be a better, more scalable solution
+
+1. AKS or VMSS with autoscaling, or running a container instance agent
+1. have multiple SPN for different jobs - one for creating the infra, another for deploying the api - potentially this one could be owned by the devs
+
+## NOTES
+
+Azure devops pool needs to be created in azure portal, this will be automatically picked up by azure devops. It cannot be done in Europe West, so I had to change the region to West UK or something similar.
