@@ -1,26 +1,32 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+      - releases/*
+      - hotfix/*
+      - feature/*
+      - bugfix/*
+      - pr/*
+pr:
+  - '*'
   
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.x'
-  displayName: 'Use Python 3.x'
+  - checkout: self
+    persistCredentials: true
+    clean: true
+  - script: |
+        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+    displayName: 'Install  tflint'
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install tflint
-  displayName: 'Install TFLint'
-
-- script: |
-    tflint --recursive --config "$(pwd)/.tflint.hcl" > tflint_output.txt
-    if [ -s tflint_output.txt ]; then
-      cat tflint_output.txt
-      exit 1
-    else
-      echo "No TFLint issues found."
-    fi
-  displayName: 'Run TFLint'
+  - script: |
+      tflint --recursive --config "$(pwd)/.tflint.hcl" > tflint_output.txt
+      if [ -s tflint_output.txt ]; then
+        cat tflint_output.txt
+        exit 1
+      else
+        echo "No TFLint issues found."
+      fi
+    displayName: 'Run TFLint'
