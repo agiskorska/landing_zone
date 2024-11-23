@@ -1,12 +1,17 @@
 terraform {
-  
+  required_version = ">= 1.0.0"
+
   required_providers {
     azuredevops = {
       source  = "microsoft/azuredevops"
+      version = ">= 0.1.0"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 2.0.0"
     }
   }
 }
-
 data "azurerm_subscription" "current" {
 }
 
@@ -62,7 +67,7 @@ output "dev_center_project" {
   value = azurerm_dev_center_project.this
 }
 
-output "managed_identity" {
+output "managed_identities" {
   value = azurerm_user_assigned_identity.this
 }
 

@@ -10,9 +10,6 @@ variable "tags" {
   type      = map(string)
 }
 
-variable "subscription_name" {
-  type      = string
-}
 
 variable "service_principal_id" {
   type      = string
