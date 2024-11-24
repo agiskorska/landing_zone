@@ -1,0 +1,127 @@
+variable "environment" {
+  type = string
+}
+variable "subscription_id" {
+  type = string
+}
+variable "resource_group" {
+  type = any
+}
+
+variable "dev_center_project_resource_id" {
+  type = string
+}
+variable "azure_devops_organization_name" {
+  type = string
+}
+
+variable "version_control_system_type" {
+  type    = string
+  default = "AzureDevOps"
+}
+
+variable "fabric_profile_sku_name" {
+  type    = string
+  default = "Standard_B1ls"
+}
+
+variable "maximum_concurrency" {
+  type = number 
+}
+
+variable "subnet_id" {
+  type    = string
+  default = null
+}
+
+variable "managed_identity" {
+  type    = any
+}
+
+
+terraform {
+  required_version = ">= 1.0.0"
+
+  required_providers {
+    azuredevops = {
+      source  = "microsoft/azuredevops"
+      version = ">= 0.1.0"
+    }
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = ">= 2.0.0"
+    }
+    azapi = {
+      source  = "azure/azapi"
+      version = "~> 1.14"
+    }
+  }
+
+}
+locals {
+  location = "uksouth"
+  organizations = [
+    { 
+      url = "https://dev.azure.com/${var.azure_devops_organization_name}"
+      parallelism = 1 
+    }
+  ]
+  permissionProfile = { kind = "CreatorOnly" }
+
+  images = [
+    {
+      resource_id = "/Subscriptions/${var.subscription_id}/Providers/Microsoft.Compute/Locations/${local.location}/Publishers/MicrosoftWindowsServer/ArtifactTypes/VMImage/Offers/WindowsServer/Skus/2022-datacenter-azure-edition/versions/latest"
+      buffer = "*"
+    },
+    {
+      resource_id = "/Subscriptions/${var.subscription_id}/Providers/Microsoft.Compute/Locations/${local.location}/Publishers/canonical/ArtifactTypes/VMImage/Offers/0001-com-ubuntu-server-focal/Skus/20_04-lts-gen2/versions/latest"
+      buffer = "*"
+    }
+  ]
+}
+
+resource "azapi_resource" "managed_devops_pool" {
+  type = "Microsoft.DevOpsInfrastructure/pools@2024-10-19"
+  body = {
+    properties = {
+      devCenterProjectResourceId = var.dev_center_project_resource_id
+      maximumConcurrency         = var.maximum_concurrency
+      organizationProfile = {
+        kind              = var.version_control_system_type
+        organizations     = local.organizations
+        permissionProfile = local.permissionProfile
+      }
+
+      agentProfile = {kind = "Stateless"}
+
+      fabricProfile = {
+        sku = {
+          name = var.fabric_profile_sku_name
+        }
+        images = [for image in local.images : {
+          resourceId         = image.resource_id
+        }]
+
+        networkProfile = var.subnet_id != null ? {
+          subnetId = var.subnet_id
+        } : null
+        osProfile = {
+          logonType = "Service"
+        }
+
+        kind = "Vmss"
+      }
+    }
+  }
+  location                  = "uksouth"  # Cannot be west europe
+  name                      = "ba-${var.environment}-deployment"
+  parent_id                 = "/subscriptions/${var.subscription_id}/resourceGroups/${var.resource_group.name}"
+  schema_validation_enabled = false
+  # tags                      = each.value.tags
+
+  identity {
+
+      type         = "UserAssigned"
+      identity_ids = [var.managed_identity.id]
+    }
+}

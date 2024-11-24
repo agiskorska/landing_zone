@@ -1,48 +1,32 @@
 trigger:
-- main
-
+  branches:
+    include:
+      - main
+      - releases/*
+      - hotfix/*
+      - feature/*
+      - bugfix/*
+      - pr/*
+pr:
+  - '*'
+  
 pool:
-  name: banonprod
+  vmImage: 'ubuntu-latest'
 
-stages:
-- stage: Plan
-  displayName: 'Terraform Plan'
-  jobs:
-  - job: TerraformPlan
-    displayName: 'Terraform Plan'
-    steps:
-    - task: TerraformInstaller@0
-      inputs:
-        terraformVersion: 'latest'
+steps:
+  - checkout: self
+    persistCredentials: true
+    clean: true
+  - script: |
+        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+    displayName: 'Install  tflint'
 
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'NONPROD'
-        scriptLocation: 'inlineScript'
-        scriptType: bash
-        inlineScript: |
-          terraform --version
-          terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
-          terraform plan -out=tfplan
-      displayName: 'Terraform Init and Plan'
-
-- stage: Deploy
-  displayName: 'Terraform Apply'
-  jobs:
-  - job: TerraformApply
-    displayName: 'Terraform Apply'
-    steps:
-    - task: TerraformInstaller@0
-      inputs:
-        terraformVersion: 'latest'
-
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'NONPROD'
-        scriptLocation: 'inlineScript'
-        scriptType: bash
-        inlineScript: |
-          terraform --version
-          terraform init -backend-config="storage_account_name=$(storageAccountName)" -backend-config="container_name=$(containerName)" -backend-config="key=$(key)" -backend-config="access_key=$(accessKey)"
-          terraform apply -auto-approve tfplan
-      displayName: 'Terraform Init and Apply'
+  - script: |
+      tflint --recursive --config "$(pwd)/.tflint.hcl" > tflint_output.txt
+      if [ -s tflint_output.txt ]; then
+        cat tflint_output.txt
+        exit 1
+      else
+        echo "No TFLint issues found."
+      fi
+    displayName: 'Run TFLint'
