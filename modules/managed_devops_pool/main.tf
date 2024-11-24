@@ -34,10 +34,12 @@ variable "subnet_id" {
   default = null
 }
 
-variable "managed_identity" {
-  type    = any
-}
 
+resource "azurerm_user_assigned_identity" "this" {
+  location            = var.resource_group.location
+  name                = "mi-${var.environment}"
+  resource_group_name = var.resource_group.name
+}
 
 terraform {
   required_version = ">= 1.0.0"
@@ -70,7 +72,7 @@ locals {
 
   images = [
     {
-      resource_id = "/Subscriptions/${var.subscription_id}/Providers/Microsoft.Compute/Locations/${local.location}/Publishers/MicrosoftWindowsServer/ArtifactTypes/VMImage/Offers/WindowsServer/Skus/2022-datacenter-azure-edition/versions/latest"
+      resource_id = "/Subscriptions/${var.subscription_id}/Providers/Microsoft.Compute/Locations/${local.location}/Publishers/MicrosoftWindowsServer/ArtifactTypes/VMImage/Offers/WindowsServer/Skus/2019-Datacenter/versions/latest"
       buffer = "*"
     },
     {
@@ -122,6 +124,6 @@ resource "azapi_resource" "managed_devops_pool" {
   identity {
 
       type         = "UserAssigned"
-      identity_ids = [var.managed_identity.id]
+      identity_ids = [azurerm_user_assigned_identity.this.id]
     }
 }

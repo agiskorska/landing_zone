@@ -28,13 +28,6 @@ resource "azurerm_dev_center_project" "this" {
   name                = "proj-fizzbuzz-${var.env}"
   resource_group_name = var.resource_group.name
 }
-
-resource "azurerm_user_assigned_identity" "this" {
-  location            = var.resource_group.location
-  name                = "mi-${var.env}"
-  resource_group_name = var.resource_group.name
-}
-
 resource "azuredevops_agent_pool" "this" {
   name                = "agent-pool-${var.env}"
   auto_provision = false
@@ -67,9 +60,6 @@ output "dev_center_project" {
   value = azurerm_dev_center_project.this
 }
 
-output "managed_identities" {
-  value = azurerm_user_assigned_identity.this
-}
 
 output "agent_pool" {
   value = azuredevops_agent_pool.this

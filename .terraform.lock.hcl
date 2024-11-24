@@ -23,7 +23,7 @@ provider "registry.terraform.io/azure/azapi" {
 
 provider "registry.terraform.io/hashicorp/azurerm" {
   version     = "4.11.0"
-  constraints = "~> 4.5"
+  constraints = ">= 2.0.0, ~> 4.5"
   hashes = [
     "h1:2YQgcxXJ7ZpJyo7bcKhhMrUEg4s/kUA1lcbYoFuN/qM=",
     "zh:026808a5ff8bce161518d503bfc57c4a95637d67e923a94382c8e878c96aaf00",
@@ -63,7 +63,7 @@ provider "registry.terraform.io/hashicorp/random" {
 
 provider "registry.terraform.io/microsoft/azuredevops" {
   version     = "1.4.0"
-  constraints = "~> 1.1"
+  constraints = ">= 0.1.0, >= 1.1.0"
   hashes = [
     "h1:ZOMXq1r6qWNlxIwp2dkiwX0PZgWiIqXAAZloXwrNKOs=",
     "zh:03703a683d4fbfaa482318599a21a99c8e2ef27ce02406408ebb3c81d99a0269",

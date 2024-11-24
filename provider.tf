@@ -18,6 +18,9 @@ terraform {
       version = "~> 3.5"
     }
   }
+  backend "azurerm" {
+    
+  }
 }
 
 provider "azurerm" {
@@ -30,6 +33,3 @@ provider "azuredevops" {
   tenant_id=var.tenant_id
   client_secret=var.service_principal_secret
 }
-
-
-# az ad sp create-for-rbac --name fb-deployment-np --role contributor --scopes /subscriptions/your-subscription-id

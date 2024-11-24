@@ -10,7 +10,6 @@ module "devops" {
   resource_group = azurerm_resource_group.this[each.key]
   tags = each.value.tags
   env = each.key
-  subscription_name = each.value.subscription_id
   service_principal_id = var.service_principal_id
   service_principal_secret = var.service_principal_secret
 }
@@ -23,5 +22,4 @@ module "managed_devops_pool" {
   dev_center_project_resource_id = module.devops[each.key].dev_center_project.id
   maximum_concurrency = each.value.maximum_concurrency
   azure_devops_organization_name= var.azure_devops_organization_name
-  managed_identity = module.devops[each.key].managed_identities
 }

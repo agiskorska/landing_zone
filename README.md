@@ -1,7 +1,5 @@
 # Introduction
 
-TODO: the steps that need to be done:
-
 ## Write terraform for the following
 
     * azure devcenter + project
@@ -18,11 +16,14 @@ locally starting a script (or better, terraform code) to stand up the services n
 
 ## What would be a better, more scalable solution
 
-1. AKS with autoscaling, or running a container instance agent
-1. have multiple SPN for different jobs - one for creating the infra, another for deploying the api - potentially this one could be owned by the devs
 1. add private network
-1. Add storage account for TF State
+1. have multiple SPN for different jobs - one for creating the infra, another for deploying the api - potentially this one could be owned by the devs
+1. Add monitoring on agents
+1. Add cost alerts
+1. AKS with autoscaling, or running a container instance agent
 
 ## NOTES
 
-Azure devops pool needs to be created in azure portal, this will be automatically picked up by azure devops. It cannot be done in Europe West, so I had to change the region to West UK or something similar.
+### Known Limitations
+
+    Azure Devops provider does not allow to create resources on the org level, so when the agent pools are created, they later are not removed when running `terraform destroy`. This means that after a destroy, there should be a command to remove the agent pools from the org. This should be scripted, but due to time constraints it was not yet.
