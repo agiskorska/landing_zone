@@ -1,5 +1,4 @@
 #!/bin/bash
-environments=(dev prod)
 rg_name=tfstate-rg-fizzbuzz
 storage_name=tfstatestoragefizzbuzz
 location=westeurope

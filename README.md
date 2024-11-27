@@ -16,6 +16,8 @@ locally starting a script (or better, terraform code) to stand up the services n
 
 ## What would be a better, more scalable solution
 
+1. add naming convention - policies or otherwise
+1. add user management
 1. add private network
 1. have multiple SPN for different jobs - one for creating the infra, another for deploying the api - potentially this one could be owned by the devs
 1. Add monitoring on agents
